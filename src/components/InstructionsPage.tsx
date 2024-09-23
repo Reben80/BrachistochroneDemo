@@ -3,7 +3,11 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Slider } from "./ui/slider";
 
-const InstructionsPage: React.FC = () => {
+interface InstructionsPageProps {
+  onClose: () => void;
+}
+
+const InstructionsPage: React.FC<InstructionsPageProps> = ({ onClose }) => {
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [cycloidParameter, setCycloidParameter] = useState(0.5);
 
@@ -114,67 +118,92 @@ const InstructionsPage: React.FC = () => {
     setOpenSection(openSection === name ? null : name);
   };
 
+  const instructionsContent = (
+    <>
+      <h3 className="text-lg font-semibold mb-2">About the Brachistochrone Problem</h3>
+      <p className="mb-4">
+        The Brachistochrone problem asks: What is the shape of the curve down which a bead sliding from rest and accelerated by gravity will slip (without friction) from one point to another in the least time?
+      </p>
+      
+      <h3 className="text-lg font-semibold mt-4 mb-2">How to Use This Demo</h3>
+      <ol className="list-decimal list-inside mb-4">
+        <li>Observe the different curves: straight line, circular arc, and cycloid.</li>
+        <li>Click "Start" to begin the simulation.</li>
+        <li>Watch as the beads race down their respective paths.</li>
+        <li>The live rankings will show you which curve is fastest in real-time.</li>
+        <li>After the race, you can see the final times for each curve.</li>
+      </ol>
+      
+      <h3 className="text-lg font-semibold mb-2">Understanding the Results</h3>
+      <p className="mb-4">
+        You'll notice that the cycloid curve, despite being longer than the straight line, allows the bead to reach the end point in the least time. This demonstrates the fascinating property of the brachistochrone curve!
+      </p>
+
+      {curves.map((curve) => (
+        <div key={curve.name} className="mb-4">
+          <Button
+            onClick={() => toggleSection(curve.name)}
+            variant="outline"
+            className="w-full justify-between"
+          >
+            <span style={{color: curve.color}}>{curve.name}</span>
+            <span>{openSection === curve.name ? '▼' : '▶'}</span>
+          </Button>
+          {openSection === curve.name && (
+            <div className="mt-2 p-4 bg-gray-100 rounded-md">
+              <p className="font-semibold">{curve.description}</p>
+              <p className="mt-2">{curve.details}</p>
+              <div className="mt-2">
+                <p className="font-semibold">Equations:</p>
+                {curve.equations?.map((eq, index) => (
+                  <pre key={index} className="bg-white p-1 mt-1 rounded">{eq}</pre>
+                ))}
+              </div>
+              <div className="mt-4">
+                <div className="border border-gray-300 rounded-md p-2 bg-white">
+                  {typeof curve.svg === 'function'
+                    ? curve.svg(cycloidParameter)
+                    : curve.svg}
+                </div>
+              </div>
+              {curve.name === 'Parametric Cycloid' && (
+                <div className="mt-4">
+                  <label className="block mb-2 text-sm font-medium">
+                    Adjust E parameter: {cycloidParameter.toFixed(2)}
+                  </label>
+                  <Slider
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={[cycloidParameter]}
+                    onValueChange={([value]) => setCycloidParameter(value)}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </>
+  );
+
   return (
     <Card className="w-full max-w-4xl mx-auto mt-8">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Instructions and Curve Explanations</CardTitle>
-        <CardDescription>
-          Learn about the different curves used in the Brachistochrone demonstration.
-        </CardDescription>
+        <CardTitle className="text-2xl font-bold">Brachistochrone Demonstration</CardTitle>
+        <CardDescription>Learn about different curves and their properties in the context of the Brachistochrone problem.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="mb-4">
-          This demonstration compares the descent times of different curves between two points under the influence of gravity. Click on each curve name to learn more about its properties and equations.
-        </p>
-        {curves.map((curve) => (
-          <div key={curve.name} className="mb-4">
-            <Button
-              onClick={() => toggleSection(curve.name)}
-              variant="outline"
-              className="w-full justify-between"
-            >
-              <span style={{color: curve.color}}>{curve.name}</span>
-              <span>{openSection === curve.name ? '▼' : '▶'}</span>
-            </Button>
-            {openSection === curve.name && (
-              <div className="mt-2 p-4 bg-gray-100 rounded-md">
-                <div className="flex flex-col md:flex-row">
-                  <div className="md:w-1/2 pr-4">
-                    <p className="font-semibold">{curve.description}</p>
-                    <p className="mt-2">{curve.details}</p>
-                    <div className="mt-2">
-                      <p className="font-semibold">Equations:</p>
-                      {curve.equations.map((eq, index) => (
-                        <pre key={index} className="bg-white p-1 mt-1 rounded">{eq}</pre>
-                      ))}
-                    </div>
-                    {curve.name === 'Parametric Cycloid' && (
-                      <div className="mt-4">
-                        <label className="block mb-2 text-sm font-medium">
-                          Adjust E parameter: {cycloidParameter.toFixed(2)}
-                        </label>
-                        <Slider
-                          min={0}
-                          max={1}
-                          step={0.01}
-                          value={[cycloidParameter]}
-                          onValueChange={([value]) => setCycloidParameter(value)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <div className="md:w-1/2 mt-4 md:mt-0">
-                    <div className="border border-gray-300 rounded-md p-2 bg-white">
-                      {curve.name === 'Parametric Cycloid'
-                        ? curve.svg(cycloidParameter)
-                        : curve.svg}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+        <Button
+          onClick={onClose}
+          variant="outline"
+          className="w-full justify-between mb-4"
+        >
+          Close Instructions
+        </Button>
+        <div className="mt-2 p-4 bg-gray-100 rounded-md">
+          {instructionsContent}
+        </div>
       </CardContent>
     </Card>
   );
