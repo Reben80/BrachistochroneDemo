@@ -1,6 +1,5 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { X } from 'lucide-react'
 
 interface AboutMeModalProps {
   onClose: () => void
@@ -16,9 +15,9 @@ const AboutMeModal: React.FC<AboutMeModalProps> = ({ onClose }) => {
           variant="ghost"
           aria-label="Close"
         >
-          <X size={20} />
+          X
         </Button>
-        <h2 className="text-2xl font-bold mb-4 text-blue-600"></h2>
+        <h2 className="text-2xl font-bold mb-4 text-blue-600">About the Creator</h2>
         <div className="space-y-2">
           <p className="text-lg">
             Email: <a href="mailto:Reben80@gmail.com" className="text-blue-500 hover:underline">Reben80@gmail.com</a>
